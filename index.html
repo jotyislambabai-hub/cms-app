@@ -115,5 +115,15 @@ async function doAdd(){const n=$('#a1').value.trim(),u=$('#a2').value.trim().toL
  try{await mk(u,n,p);modal();await load();render();toast('সদস্য যুক্ত হয়েছে ✓')}catch(e){toast(e.message,1)}}
 function exportCsv(){const rows=[['ক্রম','সদস্য','মামলার নম্বর','আদালত','বাদীর নাম','জারির স্থান','কন্ট্যাক্ট','মন্তব্য','তারিখ']].concat([...cases].reverse().map(c=>[ser[c.id],mem(c.member_id)?.member_name,c.case_number,c.court_name,c.plaintiff_name,c.serving_place,c.plaintiff_mobile,c.comments,c.entry_date]));
  const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='cases-'+today()+'.csv';a.click()}
+// ===== ব্যাক বাটন (অ্যান্ড্রয়েড) =====
+const capApp=()=>window.Capacitor&&((Capacitor.Plugins&&Capacitor.Plugins.App)||(Capacitor.registerPlugin&&Capacitor.registerPlugin('App')));
+function exitConfirm(){modal(`<h2 style="margin-top:0">অ্যাপ থেকে বের হবেন?</h2><p class="mu">আপনি কি সত্যিই অ্যাপ বন্ধ করতে চান?</p><div class="row"><button class="btn d" onclick="exitApp()">হ্যাঁ, বের হব</button><button class="btn s" onclick="modal()">না, থাকব</button></div>`)}
+function exitApp(){const A=capApp();if(A&&A.exitApp)A.exitApp()}
+function onBack(){
+ if($('#modal').innerHTML!==''){modal();return}
+ if(me&&tab==='profile'){go('members');return}
+ if(me&&tab!=='home'){go('home');return}
+ exitConfirm()}
+try{const A=capApp();if(A&&A.addListener)A.addListener('backButton',onBack)}catch(e){}
 if(!CFG)$('#app').innerHTML='<div class="empty">⚠️ index.html-এর শুরুতে SUPABASE_URL ও SUPABASE_ANON_KEY বসান</div>';else init();
 </script></body></html>
