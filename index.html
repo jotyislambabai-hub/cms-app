@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="bn"><head><meta charset="utf-8"><title>Case Management System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#1d4ed8">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0b1f4d"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@600;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
 :root{--bg:#eef3fb;--card:#fff;--tx:#0f1f3d;--mu:#64748b;--pr:#1d4ed8;--pr2:#3b82f6;--bd:#e2e8f0;--dg:#dc2626;--ok:#16a34a;--soft:#eff6ff}
@@ -28,8 +28,54 @@ nav button{border:0;background:none;color:var(--mu);font:inherit;font-size:11px;
 .tw{overflow-x:auto;border:1px solid var(--bd);border-radius:14px;background:var(--card)}.dt{width:100%;border-collapse:collapse;font-size:14px}.dt th{background:var(--soft);color:var(--pr);text-align:left;padding:9px 8px;font-size:13px;white-space:nowrap;position:sticky;top:0}.dt td{padding:5px 8px;border-top:1px solid var(--bd);vertical-align:middle}.dt td.c{text-align:center;color:var(--mu);width:1%}.dt td input{margin:0;padding:7px 9px;border-radius:9px;min-width:130px}.dt td:nth-child(3) input{min-width:120px}.dt td:nth-child(4) input{min-width:170px}.dt .empty{padding:24px}
 nav button{flex:1;min-width:0;padding:4px 4px;text-align:center;line-height:1.2;font-size:10.5px}
 a{color:var(--pr)}
-</style></head><body>
-<header><div class="top"><div><h1>⚖️ Case Management System</h1><small id="who"></small></div><div class="row"><button class="btn s sm" id="rf" style="display:none" onclick="refresh()">🔄</button><button class="btn s sm" id="out" style="display:none" onclick="logout()">লগআউট</button></div></div><div id="stats"></div></header>
+
+:root{--gold:#f5c451;--gold2:#c8921a;--navy:#0b1f4d;--pr:#1e4fd8;--pr2:#3b82f6;--bg:#f1f5fc;--soft:#e6eeff;--bd:#dce5f4}
+@media(prefers-color-scheme:dark){:root{--bg:#070d1c;--card:#101a31;--bd:#22304f;--soft:#16264d;--pr:#5b8dff;--tx:#e8eefc}}
+body{font-family:"Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;font-size:16px}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.08;background:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20800%201200%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%20fill%3D%27none%27%20stroke%3D%27%231e4fd8%27%20stroke-width%3D%271.3%27%3E%3Ccircle%20cx%3D%27700%27%20cy%3D%27140%27%20r%3D%27230%27/%3E%3Ccircle%20cx%3D%27700%27%20cy%3D%27140%27%20r%3D%27170%27/%3E%3Ccircle%20cx%3D%27700%27%20cy%3D%27140%27%20r%3D%27110%27/%3E%3Ccircle%20cx%3D%27700%27%20cy%3D%27140%27%20r%3D%2750%27/%3E%3Cpath%20d%3D%27M-20%20760c120-90%20230%2060%20360-10s210-120%20460-30%27/%3E%3Cpath%20d%3D%27M-20%20810c120-90%20230%2060%20360-10s210-120%20460-30%27/%3E%3Cpath%20d%3D%27M-20%20860c120-90%20230%2060%20360-10s210-120%20460-30%27/%3E%3Cpath%20d%3D%27M-20%20910c120-90%20230%2060%20360-10s210-120%20460-30%27/%3E%3Cpath%20d%3D%27M60%20330l60-35%2060%2035v70l-60%2035-60-35z%27/%3E%3Cpath%20d%3D%27M120%20400l60-35%2060%2035v70l-60%2035-60-35z%27/%3E%3Cg%20fill%3D%27%23c8921a%27%20stroke%3D%27none%27%3E%3Ccircle%20cx%3D%2790%27%20cy%3D%27150%27%20r%3D%273%27/%3E%3Ccircle%20cx%3D%27150%27%20cy%3D%27190%27%20r%3D%272%27/%3E%3Ccircle%20cx%3D%27230%27%20cy%3D%27120%27%20r%3D%273%27/%3E%3Ccircle%20cx%3D%27600%27%20cy%3D%27560%27%20r%3D%273%27/%3E%3Ccircle%20cx%3D%27680%27%20cy%3D%27620%27%20r%3D%272%27/%3E%3Ccircle%20cx%3D%27520%27%20cy%3D%271040%27%20r%3D%273%27/%3E%3Ccircle%20cx%3D%27120%27%20cy%3D%271100%27%20r%3D%272%27/%3E%3C/g%3E%3C/svg%3E") center/cover no-repeat}
+header{position:relative;overflow:hidden;padding:calc(16px + env(safe-area-inset-top,0px)) 18px 22px;border-radius:0 0 34px 34px;background:radial-gradient(circle at 88% 0%,rgba(245,196,81,.3),transparent 46%),url("Hdata:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20800%201200%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%20fill%3D%27none%27%20stroke%3D%27%231e4fd8%27%20stroke-width%3D%271.3%27%3E%3Ccircle%20cx%3D%27700%27%20cy%3D%27140%27%20r%3D%27230%27/%3E%3Ccircle%20cx%3D%27700%27%20cy%3D%27140%27%20r%3D%27170%27/%3E%3Ccircle%20cx%3D%27700%27%20cy%3D%27140%27%20r%3D%27110%27/%3E%3Ccircle%20cx%3D%27700%27%20cy%3D%27140%27%20r%3D%2750%27/%3E%3Cpath%20d%3D%27M-20%20760c120-90%20230%2060%20360-10s210-120%20460-30%27/%3E%3Cpath%20d%3D%27M-20%20810c120-90%20230%2060%20360-10s210-120%20460-30%27/%3E%3Cpath%20d%3D%27M-20%20860c120-90%20230%2060%20360-10s210-120%20460-30%27/%3E%3Cpath%20d%3D%27M-20%20910c120-90%20230%2060%20360-10s210-120%20460-30%27/%3E%3Cpath%20d%3D%27M60%20330l60-35%2060%2035v70l-60%2035-60-35z%27/%3E%3Cpath%20d%3D%27M120%20400l60-35%2060%2035v70l-60%2035-60-35z%27/%3E%3Cg%20fill%3D%27%23c8921a%27%20stroke%3D%27none%27%3E%3Ccircle%20cx%3D%2790%27%20cy%3D%27150%27%20r%3D%273%27/%3E%3Ccircle%20cx%3D%27150%27%20cy%3D%27190%27%20r%3D%272%27/%3E%3Ccircle%20cx%3D%27230%27%20cy%3D%27120%27%20r%3D%273%27/%3E%3Ccircle%20cx%3D%27600%27%20cy%3D%27560%27%20r%3D%273%27/%3E%3Ccircle%20cx%3D%27680%27%20cy%3D%27620%27%20r%3D%272%27/%3E%3Ccircle%20cx%3D%27520%27%20cy%3D%271040%27%20r%3D%273%27/%3E%3Ccircle%20cx%3D%27120%27%20cy%3D%271100%27%20r%3D%272%27/%3E%3C/g%3E%3C/svg%3E") right top/420px no-repeat,linear-gradient(135deg,#0b1f4d 0%,#16399c 58%,#2563eb 100%);box-shadow:0 14px 34px rgba(11,31,77,.35),inset 0 -3px 0 var(--gold)}
+.brand{display:flex;align-items:center;gap:13px;min-width:0;animation:slide .7s cubic-bezier(.2,.8,.2,1) both}
+.logo{flex:none;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,rgba(245,196,81,.22),rgba(255,255,255,.06));box-shadow:0 0 0 1.5px rgba(245,196,81,.65),0 8px 20px rgba(0,0,0,.3)}
+header h1{margin:0;font:800 27px/1.12 "Playfair Display","Noto Serif Bengali",Georgia,serif;letter-spacing:.3px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+header h1 span{color:var(--gold)}
+.sub{margin-top:4px;font:600 13px "Noto Serif Bengali",serif;color:#f6dc93;letter-spacing:.3px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px;animation:slide .7s .12s cubic-bezier(.2,.8,.2,1) both}
+.who{display:flex;align-items:center;gap:10px;min-width:0;font:700 19px/1.25 "Hind Siliguri",sans-serif;color:#fff}
+.who:empty{display:none}
+.who::before{content:"";flex:none;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.16) url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-width%3D%271.9%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%278%27%20r%3D%274%27/%3E%3Cpath%20d%3D%27M4%2021c.8-4.2%204-6.5%208-6.5s7.2%202.3%208%206.5%27/%3E%3C/svg%3E") center/22px no-repeat;box-shadow:0 0 0 1.5px rgba(245,196,81,.7)}
+.hb{align-items:center;justify-content:center;gap:8px;height:44px;border-radius:14px;color:#fff;font:600 15px "Hind Siliguri",sans-serif;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.36);cursor:pointer;backdrop-filter:blur(6px);transition:background .2s}
+#rf.hb{width:44px;padding:0}#out.hb{padding:0 16px}
+#rf,#out{display:inline-flex}
+.hb:active,#out.hb:hover{background:#dc2626;border-color:#dc2626}
+.stats{gap:10px;margin-top:18px}
+.stat{padding:13px 6px;border-radius:18px;border:1px solid rgba(255,255,255,.22);background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.06));backdrop-filter:blur(6px)}
+.stat b{font-size:27px;color:var(--gold)}.stat span{font-size:12.5px;color:#e6edff}
+h2{position:relative;padding-left:13px;font:700 19px "Noto Serif Bengali",serif;color:var(--pr)}
+h2::before{content:"";position:absolute;left:0;top:14%;height:72%;width:4px;border-radius:4px;background:linear-gradient(var(--gold),var(--gold2))}
+.card{border-radius:20px;box-shadow:0 6px 18px rgba(15,31,61,.07);animation:up .4s both}
+.case{border-left:4px solid var(--gold)}
+.case:active,.mc:active{transform:scale(.985)}
+.sn{background:linear-gradient(135deg,#0b1f4d,var(--pr));color:#fff}
+.av{background:linear-gradient(135deg,#0b1f4d,var(--pr2));box-shadow:0 0 0 3px rgba(245,196,81,.7)}
+.btn{background:linear-gradient(135deg,#1e4fd8,#3b82f6);font-weight:600;box-shadow:0 4px 12px rgba(30,79,216,.28);transition:transform .15s}
+.btn:active{transform:scale(.96)}.btn.s{background:var(--card);box-shadow:none}
+.btn.d{background:linear-gradient(135deg,#b91c1c,#ef4444)}.btn.w{background:linear-gradient(135deg,#b45309,#f59e0b)}
+input:focus,textarea:focus,select:focus{outline:0;border-color:var(--pr2);box-shadow:0 0 0 3px rgba(59,130,246,.22)}
+.dt th{background:linear-gradient(135deg,#0b1f4d,#1e4fd8);color:#fff}
+main{padding-bottom:calc(116px + env(safe-area-inset-bottom,0px))}
+nav{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));padding:7px 6px;border:1px solid var(--bd);border-radius:26px;box-shadow:0 12px 30px rgba(11,31,77,.22);backdrop-filter:blur(14px)}
+nav button{border-radius:18px;padding:6px 2px;gap:2px;font-size:11px;font-weight:600;transition:background .25s,color .25s,transform .25s}
+nav button i{display:grid;place-items:center;height:24px}
+nav button.on{background:linear-gradient(135deg,#0b1f4d,#2563eb);color:#fff;box-shadow:0 6px 14px rgba(37,99,235,.4);transform:translateY(-3px)}
+nav button.on i{color:var(--gold)}
+.fab{bottom:calc(94px + env(safe-area-inset-bottom,0px));background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0b1f4d;font-weight:700;box-shadow:0 10px 22px rgba(200,146,26,.45)}
+#toast{bottom:calc(108px + env(safe-area-inset-bottom,0px))}
+.modal{backdrop-filter:blur(3px)}.modal>div{animation:slide .32s cubic-bezier(.2,.8,.2,1)}
+@keyframes slide{from{opacity:0;transform:translateY(36px)}}
+@keyframes up{from{opacity:0;transform:translateY(12px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.logo.has{background:#fff;padding:3px;box-shadow:0 0 0 2px var(--gold),0 8px 20px rgba(0,0,0,.3)}.logo.has img{width:100%!important;height:100%!important;border-radius:50%}</style></head><body>
+<header><div class="brand"><div class="logo"><img src="logo.png" alt="" style="width:50px;height:50px;object-fit:contain" onload="this.parentNode.classList.add('has')" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span style="display:none"><svg viewBox="0 0 64 64" width="44" height="44" fill="none" stroke="#f5c451" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M32 13v33M21 48h22M16 22h32"/><path d="M16 22L9 35h14zM48 22l-7 13h14z" stroke-width="2.1"/><path d="M9 35a7 7 0 0 0 14 0M41 35a7 7 0 0 0 14 0" fill="#f5c451"/><circle cx="32" cy="12" r="2.8" fill="#f5c451"/></svg></span></div><div><h1>Case Management <span>System</span></h1><div class="sub">আদালত মামলা ব্যবস্থাপনা পোর্টাল</div></div></div><div class="bar"><div id="who" class="who"></div><div class="row" style="flex-wrap:nowrap"><button class="hb" id="rf" style="display:none" onclick="refresh()" aria-label="রিফ্রেশ"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg></button><button class="hb" id="out" style="display:none" onclick="logout()"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>লগআউট</button></div></div><div id="stats"></div></header>
 <main id="app"><div class="empty">লোড হচ্ছে…</div></main><div id="fabw"></div><nav id="nav" style="display:none"></nav><div id="toast"></div><div id="modal"></div>
 <script>
 // ====== এখানে নিজের Supabase তথ্য বসান (Project Settings > API) ======
@@ -41,6 +87,8 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const CFG=!SUPABASE_URL.startsWith('PASTE');const sb=CFG?supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
 const sb2=CFG?supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false,storageKey:'sb-aux'}}):null;
 let me=null,members=[],cases=[],ser={},tab='home',cur=null,q='',fm='',fd='',sub=false;
+const sv=p=>`<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const IC={home:sv('<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'),cases:sv('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'),members:sv('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 3.2-5.5 6.5-5.5s6 2 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.5c2.6.2 4.2 1.8 4.5 4.5"/>'),dir:sv('<path d="M5 3h12a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2z"/><circle cx="12" cy="9" r="2.5"/><path d="M8 16c.6-2 2.2-3 4-3s3.4 1 4 3"/>'),admin:sv('<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>')};
 let dirRows=[],dk='lawyer',dq='',dirErr='';
 const today=()=>new Date().toISOString().slice(0,10),isAdmin=()=>me&&me.is_admin,mem=id=>members.find(m=>m.id===id);
 const COURTS=["জেলা ও দায়রা জজ আদালত", "অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত", "অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত", "অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত", "যুগ্ম জেলা ও দায়রা জজ ১ম আদালত", "যুগ্ম জেলা ও দায়রা জজ ২য় আদালত", "সিনিয়র সিভিল জজ সদর", "সিনিয়র সিভিল জজ পাংশা", "সিভিল জজ বালিয়াকান্দি", "সিভিল জজ গোয়ালন্দ", "ল্যান্ড সার্ভে ট্রাইব্যুনাল", "ল্যান্ড সার্ভে আপীল ট্রাইব্যুনাল", "পারিবারিক আদালত", "পারিবারিক আপীল আদালত"];
@@ -72,7 +120,7 @@ function go(t,id){tab=t;cur=id||null;q='';dq='';fm='';fd='';render();scrollTo(0,
 function render(){
  if(!me)return;['#out','#rf'].forEach(s=>$(s).style.display='');$('#who').textContent=(isAdmin()?'সুপার অ্যাডমিন · ':'')+me.member_name;const t=today();
  $('#stats').innerHTML=`<div class="stats"><div class="stat"><b>${bn(members.length)}</b><span>মোট সদস্য</span></div><div class="stat"><b>${bn(cases.length)}</b><span>মোট মামলা</span></div><div class="stat"><b>${bn(cases.filter(c=>c.entry_date===t).length)}</b><span>আজ যুক্ত</span></div></div>`;
- const tabs=[['home','🏠','হোম'],['cases','📁','মামলা'],['members','👥','সদস্য'],['dir','📒','আইনজীবী ও মোহরি']];if(isAdmin())tabs.push(['admin','⚙️','অ্যাডমিন']);
+ const tabs=[['home',IC.home,'হোম'],['cases',IC.cases,'মামলা'],['members',IC.members,'সদস্য'],['dir',IC.dir,'আইনজীবী ও মোহরি']];if(isAdmin())tabs.push(['admin',IC.admin,'অ্যাডমিন']);
  $('#nav').style.display='flex';$('#nav').innerHTML=tabs.map(x=>`<button class="${tab===x[0]||(tab==='profile'&&x[0]==='members')?'on':''}" onclick="go('${x[0]}')"><i>${x[1]}</i>${x[2]}</button>`).join('');
  $('#fabw').innerHTML=`<button class="fab" onclick="caseForm('${me.id}')" aria-label="নতুন মামলা">＋</button>`;
  ({home,cases:casesPage,members:membersPage,profile:profile,dir:dirPage,admin:adminPage})[tab]()}
