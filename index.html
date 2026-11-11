@@ -25,6 +25,8 @@ nav button{border:0;background:none;color:var(--mu);font:inherit;font-size:11px;
 .fab{position:fixed;right:16px;bottom:calc(78px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:linear-gradient(135deg,var(--pr2),var(--pr));color:#fff;font-size:30px;box-shadow:0 8px 20px rgba(29,78,216,.4);z-index:11}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:20}.modal>div{background:var(--card);width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:92%;overflow:auto}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom,0px));background:#0f172a;color:#fff;padding:10px 18px;border-radius:30px;z-index:30;display:none;max-width:90%}
+.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:14px;background:var(--card)}.dt{width:100%;border-collapse:collapse;font-size:14px}.dt th{background:var(--soft);color:var(--pr);text-align:left;padding:9px 8px;font-size:13px;white-space:nowrap;position:sticky;top:0}.dt td{padding:5px 8px;border-top:1px solid var(--bd);vertical-align:middle}.dt td.c{text-align:center;color:var(--mu);width:1%}.dt td input{margin:0;padding:7px 9px;border-radius:9px;min-width:130px}.dt td:nth-child(3) input{min-width:120px}.dt td:nth-child(4) input{min-width:170px}.dt .empty{padding:24px}
+nav button{flex:1;min-width:0;padding:4px 4px;text-align:center;line-height:1.2;font-size:10.5px}
 a{color:var(--pr)}
 </style></head><body>
 <header><div class="top"><div><h1>⚖️ Case Management System</h1><small id="who"></small></div><div class="row"><button class="btn s sm" id="rf" style="display:none" onclick="refresh()">🔄</button><button class="btn s sm" id="out" style="display:none" onclick="logout()">লগআউট</button></div></div><div id="stats"></div></header>
@@ -39,6 +41,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const CFG=!SUPABASE_URL.startsWith('PASTE');const sb=CFG?supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
 const sb2=CFG?supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false,storageKey:'sb-aux'}}):null;
 let me=null,members=[],cases=[],ser={},tab='home',cur=null,q='',fm='',fd='',sub=false;
+let dirRows=[],dk='lawyer',dq='',dirErr='';
 const today=()=>new Date().toISOString().slice(0,10),isAdmin=()=>me&&me.is_admin,mem=id=>members.find(m=>m.id===id);
 const COURTS=["জেলা ও দায়রা জজ আদালত", "অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত", "অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত", "অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত", "যুগ্ম জেলা ও দায়রা জজ ১ম আদালত", "যুগ্ম জেলা ও দায়রা জজ ২য় আদালত", "সিনিয়র সিভিল জজ সদর", "সিনিয়র সিভিল জজ পাংশা", "সিভিল জজ বালিয়াকান্দি", "সিভিল জজ গোয়ালন্দ", "ল্যান্ড সার্ভে ট্রাইব্যুনাল", "ল্যান্ড সার্ভে আপীল ট্রাইব্যুনাল", "পারিবারিক আদালত", "পারিবারিক আপীল আদালত"];
 const info=m=>[m.designation&&'🏷️ '+esc(m.designation),m.office&&'🏢 '+esc(m.office),m.mobile&&'📞 '+esc(m.mobile)].filter(Boolean).map(t=>`<div class="mu">${t}</div>`).join('');
@@ -65,14 +68,14 @@ async function doLogin(){const u=$('#lu').value.trim().toLowerCase(),p=$('#lp').
  $('#lb').disabled=true;const{error}=await sb.auth.signInWithPassword({email:u+'@cms.app',password:p});
  if(error){$('#lb').disabled=false;return toast('ইউজারনেম বা PIN ভুল',1)}await boot()}
 async function logout(){await sb.auth.signOut();loginView()}
-function go(t,id){tab=t;cur=id||null;q='';fm='';fd='';render();scrollTo(0,0)}
+function go(t,id){tab=t;cur=id||null;q='';dq='';fm='';fd='';render();scrollTo(0,0)}
 function render(){
  if(!me)return;['#out','#rf'].forEach(s=>$(s).style.display='');$('#who').textContent=(isAdmin()?'সুপার অ্যাডমিন · ':'')+me.member_name;const t=today();
  $('#stats').innerHTML=`<div class="stats"><div class="stat"><b>${bn(members.length)}</b><span>মোট সদস্য</span></div><div class="stat"><b>${bn(cases.length)}</b><span>মোট মামলা</span></div><div class="stat"><b>${bn(cases.filter(c=>c.entry_date===t).length)}</b><span>আজ যুক্ত</span></div></div>`;
- const tabs=[['home','🏠','হোম'],['cases','📁','মামলা'],['members','👥','সদস্য']];if(isAdmin())tabs.push(['admin','⚙️','অ্যাডমিন']);
+ const tabs=[['home','🏠','হোম'],['cases','📁','মামলা'],['members','👥','সদস্য'],['dir','📒','আইনজীবী ও মোহরি']];if(isAdmin())tabs.push(['admin','⚙️','অ্যাডমিন']);
  $('#nav').style.display='flex';$('#nav').innerHTML=tabs.map(x=>`<button class="${tab===x[0]||(tab==='profile'&&x[0]==='members')?'on':''}" onclick="go('${x[0]}')"><i>${x[1]}</i>${x[2]}</button>`).join('');
  $('#fabw').innerHTML=`<button class="fab" onclick="caseForm('${me.id}')" aria-label="নতুন মামলা">＋</button>`;
- ({home,cases:casesPage,members:membersPage,profile:profile,admin:adminPage})[tab]()}
+ ({home,cases:casesPage,members:membersPage,profile:profile,dir:dirPage,admin:adminPage})[tab]()}
 const hit=(c,ql)=>[c.case_number,c.court_name,c.plaintiff_name,c.plaintiff_mobile,c.serving_place,c.comments,mem(c.member_id)?.member_name].some(v=>String(v||'').toLowerCase().includes(ql));
 function filt(l){const ql=q.trim().toLowerCase();if(ql)l=l.filter(c=>hit(c,ql));if(fm)l=l.filter(c=>c.member_id===fm);if(fd)l=l.filter(c=>c.entry_date===fd);return l}
 function caseCard(c){const m=mem(c.member_id);return `<div class="card case" onclick="details('${c.id}')"><div class="row sp"><div class="row"><div class="sn">${bn(ser[c.id]||0)}</div><h3>📁 ${esc(c.case_number)}</h3></div><span class="mu">${esc(c.entry_date)}</span></div><div class="kv"><span>আদালত</span><span>${esc(c.court_name)||'—'}</span><span>বাদী</span><span>${esc(c.plaintiff_name)}</span><span>জারির স্থান</span><span>${esc(c.serving_place)||'—'}</span><span>যোগাযোগ</span><span>${esc(c.plaintiff_mobile)}</span></div><div class="row sp"><span class="badge">👤 ${esc(m?.member_name||'')}</span><span class="mu">বিস্তারিত →</span></div></div>`}
@@ -95,6 +98,37 @@ async function saveCase(mid,id){const d={case_number:$('#f1').value.trim(),plain
  if(r.error){$('#sv').disabled=false;return toast('ত্রুটি: '+r.error.message,1)}modal();await load();render();toast('মামলা সংরক্ষিত ✓')}
 function del(id){modal(`<h2 style="margin-top:0">মামলা মুছবেন?</h2><p class="mu">এই কাজ ফেরানো যাবে না।</p><div class="row"><button class="btn d" onclick="doDel('${id}')">হ্যাঁ, মুছুন</button><button class="btn s" onclick="modal()">বাতিল</button></div>`)}
 async function doDel(id){const r=await sb.from('cases').delete().eq('id',id);if(r.error)return toast(r.error.message,1);modal();await load();render();toast('মুছে ফেলা হয়েছে')}
+// ===== আইনজীবী ও মোহরিগণের নম্বর =====
+const DKN={lawyer:'আইনজীবীগণের নাম ও মোবাইল নম্বর',moharir:'মোহরিগণের নাম ও ঠিকানা'};
+const dfill=r=>!!(r.name||r.mobile||r.address);
+const dhit=(r,ql)=>[r.name,r.mobile,r.address].some(v=>String(v||'').toLowerCase().includes(ql));
+async function dirLoad(){const r=await sb.from('directory').select('*').order('sl');if(r.error){dirErr=r.error.message;dirRows=[];return}dirErr='';dirRows=r.data}
+async function dirPage(){
+ $('#app').innerHTML=`<h2 style="margin-top:4px">📒 আইনজীবী ও মোহরিগণের নম্বর</h2><div class="row" style="margin-bottom:6px;flex-wrap:nowrap"><button class="btn" id="dkl" style="flex:1" onclick="dirTab('lawyer')"></button><button class="btn s" id="dkm" style="flex:1" onclick="dirTab('moharir')"></button></div><input id="dqi" placeholder="🔍 নাম, মোবাইল নম্বর বা ঠিকানা দিয়ে খুঁজুন" value="${esc(dq)}" oninput="dq=this.value;dir2()"><div id="dl"><div class="empty">লোড হচ্ছে…</div></div>`;
+ await dirLoad();if(tab==='dir')dir2()}
+function dirTab(k){dk=k;dir2()}
+function dirVis(k){const ql=dq.trim().toLowerCase();return dirRows.filter(r=>r.kind===k&&(ql?dhit(r,ql):(isAdmin()||dfill(r))))}
+function dirCounts(){const ql=dq.trim().toLowerCase();const c=k=>ql?dirVis(k).length:dirRows.filter(r=>r.kind===k&&dfill(r)).length;
+ $('#dkl').className='btn'+(dk==='lawyer'?'':' s');$('#dkm').className='btn'+(dk==='moharir'?'':' s');
+ $('#dkl').textContent=`⚖️ আইনজীবী (${bn(c('lawyer'))})`;$('#dkm').textContent=`📝 মোহরি (${bn(c('moharir'))})`}
+function dir2(){
+ if(!$('#dl'))return;
+ if(dirErr){$('#dl').innerHTML=`<div class="card"><b>⚠️ ডেটাবেস টেবিল পাওয়া যায়নি</b><p class="mu">Supabase-এর SQL Editor-এ directory.sql চালান। (${esc(dirErr)})</p></div>`;return}
+ dirCounts();const ad=isAdmin(),ql=dq.trim().toLowerCase(),l=dirVis(dk);
+ const nm=dk==='lawyer'?'আইনজীবীগণের নাম':'মোহরিগণের নাম';
+ const rows=l.map(r=>ad?`<tr><td class="c">${bn(r.sl)}</td><td><input id="dn_${r.id}" value="${esc(r.name)}"></td><td><input id="dm_${r.id}" inputmode="tel" value="${esc(r.mobile)}"></td><td><input id="da_${r.id}" value="${esc(r.address)}"></td><td class="c" style="white-space:nowrap"><button class="btn sm" onclick="dirSave('${r.id}')">💾</button> <button class="btn d sm" onclick="dirDel('${r.id}')">🗑️</button></td></tr>`
+  :`<tr><td class="c">${bn(r.sl)}</td><td>${esc(r.name)||'—'}</td><td>${r.mobile?`<a href="tel:${esc(r.mobile)}">${esc(r.mobile)}</a>`:'—'}</td><td>${esc(r.address)||'—'}</td></tr>`).join('');
+ $('#dl').innerHTML=`<div class="mu" style="margin:2px 0 8px"><b>${DKN[dk]}</b>${ql?` · ${bn(l.length)}টি ফলাফল`:''}</div><div class="tw"><table class="dt"><thead><tr><th>ক্রমিক নং</th><th>${nm}</th><th>মোবাইল নম্বর</th><th>ঠিকানা</th>${ad?'<th>কাজ</th>':''}</tr></thead><tbody>${rows||`<tr><td colspan="5" class="empty">${ql?'কিছু পাওয়া যায়নি':'এখনো কোনো তথ্য নেই'}</td></tr>`}</tbody></table></div>${ad?'<div class="row" style="margin-top:10px"><button class="btn s sm" onclick="dirAdd()">＋ নতুন সারি যোগ করুন</button><span class="mu">💾 = সংরক্ষণ, 🗑️ = মুছুন। সার্চ করার আগে সংরক্ষণ করে নিন।</span></div>':''}`}
+async function dirSave(id){if(!isAdmin())return;const d={name:$('#dn_'+id).value.trim()||null,mobile:$('#dm_'+id).value.trim()||null,address:$('#da_'+id).value.trim()||null};
+ const r=await sb.from('directory').update({...d,updated_at:new Date().toISOString()}).eq('id',id);if(r.error)return toast('ত্রুটি: '+r.error.message,1);
+ Object.assign(dirRows.find(x=>x.id===id),d);dirCounts();toast('সংরক্ষিত ✓')}
+function dirDel(id){const r=dirRows.find(x=>x.id===id);modal(`<h2 style="margin-top:0">ক্রম ${bn(r.sl)} মুছবেন?</h2><p class="mu">${r.sl>100?'এই সারিটি সম্পূর্ণ মুছে যাবে।':'এই সারির তথ্য খালি হয়ে যাবে (ক্রমিক নং থাকবে)।'} ফেরানো যাবে না।</p><div class="row"><button class="btn d" onclick="doDirDel('${id}')">হ্যাঁ, মুছুন</button><button class="btn s" onclick="modal()">বাতিল</button></div>`)}
+async function doDirDel(id){if(!isAdmin())return;const r=dirRows.find(x=>x.id===id);let e;
+ if(r.sl>100){e=(await sb.from('directory').delete().eq('id',id)).error;if(!e)dirRows=dirRows.filter(x=>x.id!==id)}
+ else{e=(await sb.from('directory').update({name:null,mobile:null,address:null,updated_at:new Date().toISOString()}).eq('id',id)).error;if(!e)Object.assign(r,{name:null,mobile:null,address:null})}
+ if(e)return toast(e.message,1);modal();dir2();toast('মুছে ফেলা হয়েছে')}
+async function dirAdd(){if(!isAdmin())return;const mx=Math.max(0,...dirRows.filter(r=>r.kind===dk).map(r=>r.sl));
+ const r=await sb.from('directory').insert({kind:dk,sl:mx+1}).select().single();if(r.error)return toast(r.error.message,1);dirRows.push(r.data);dir2();toast('নতুন সারি যোগ হয়েছে ✓')}
 // ===== অ্যাডমিন =====
 function adminPage(){if(!isAdmin())return go('home');
  $('#app').innerHTML=`<h2 style="margin-top:4px">⚙️ অ্যাডমিন প্যানেল</h2><div class="row" style="margin-bottom:10px"><button class="btn sm" onclick="bulk()">১৭ জন সদস্য একসাথে তৈরি</button><button class="btn s sm" onclick="addOne()">＋ একজন সদস্য</button><button class="btn s sm" onclick="exportCsv()">⬇️ CSV ব্যাকআপ</button></div>${members.map(m=>`<div class="card" style="margin-bottom:10px"><div class="row sp"><span class="mu">ইউজারনেম: <b>${esc(m.username)}</b></span><span>${m.is_admin?'<span class="badge a">অ্যাডমিন</span>':''}${m.blocked?'<span class="badge r">ব্লক</span>':''}</span></div><label>নাম</label><input id="n_${m.id}" value="${esc(m.member_name)}"><label>পদবি</label><input id="d_${m.id}" value="${esc(m.designation)}"><label>অফিস</label><input id="o_${m.id}" value="${esc(m.office)}"><label>মোবাইল নম্বর (১১ ডিজিট)</label><input id="t_${m.id}" inputmode="numeric" maxlength="11" value="${esc(m.mobile)}"><label>নতুন PIN (৬–৮ সংখ্যা, ঐচ্ছিক)</label><input id="p_${m.id}" inputmode="numeric" maxlength="8"><div class="row"><button class="btn sm" onclick="saveM('${m.id}','${m.auth_user_id}')">সংরক্ষণ</button>${m.is_admin?'':`<button class="btn sm w" onclick="blockM('${m.id}',${!m.blocked})">${m.blocked?'আনব্লক':'ব্লক'}</button><button class="btn d sm" onclick="delM('${m.id}')">মুছুন</button>`}</div></div>`).join('')}`}
